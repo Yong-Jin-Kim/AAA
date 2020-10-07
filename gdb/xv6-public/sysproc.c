@@ -142,29 +142,6 @@ sys_set_cpu_share(void)
 }
 
 int
-sys_thread_join(void)
-{
-  thread_t thread;
-  void **retval;
-  if(argint(0, (int*)&thread) < 0)
-    return -1;
-  if(argptr(1, (char**)&retval, 4) < 0)
-    return -1;
-  //cprintf("------------------join %d\n", thread);
-  return thread_join(thread, retval);
-}
-
-int
-sys_thread_exit(void)
-{
-  void *retval;
-  if(argint(0, (int*)&retval) < 0)
-    return -1;
-  thread_exit(retval);
-  return 0;
-}
-
-int
 sys_print_order(void)
 {
   int a, b, c;
@@ -175,6 +152,30 @@ sys_print_order(void)
   if(argint(2, &c) < 0)
     return -1;
   cprintf("%d %d %d ", a, b, c);
+  return 0;
+}
+
+int
+sys_thread_join(void)
+{
+  thread_t thread;
+  void **retval;
+  if(argint(0, (int*)&thread) < 0)
+    return -1;
+  if(argptr(1, (char**)&retval, 4) < 0)
+    return -1;
+  //cprintf("------------------join %d\n", thread);
+  thread_join(thread, retval);
+  return 0;
+}
+
+int
+sys_thread_exit(void)
+{
+  void *retval;
+  if(argint(0, (int*)&retval) < 0)
+    return -1;
+  thread_exit(retval);
   return 0;
 }
 

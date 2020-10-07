@@ -43,10 +43,11 @@ trap(struct trapframe *tf)
       exit();
     if(myproc()->proc_true == 1) {
       myproc()->tf = tf;
+      syscall();
     } else {
       myproc()->t_tf[myproc()->active_thread] = tf;
+      syscall();
     }
-    syscall();
     if(myproc()->killed)
       exit();
     return;

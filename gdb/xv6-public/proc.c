@@ -577,54 +577,9 @@ scheduler(void)
         switchuvm(p);
 	
 	// CORE
-	if(p->num_thread == 0) {
-	  hot = 0;
-	  p->proc_true = 1;
-	  p->state = RUNNING; // Where process becomes RUNNING
-	  swtch(&(c->scheduler), p->context);
-	} else {
-	  ///// ^^
-	  while(local_ticks > 0) {
-	    hot = 1;
-	    int temp = p->active_thread;
-	    for(; p->t_state[p->active_thread] != RUNNABLE && p->active_thread < p->t_history; p->active_thread++);
-	    if(p->t_state[p->active_thread] == RUNNABLE) {
-	      if(p->proc_true == 1) p->proc_true = 0;
-	      else p->t_state[temp] = RUNNABLE;
-	      p->state = RUNNING;
-	      p->t_state[p->active_thread] = RUNNING;
-	      //cprintf("into thread %d\n", p->active_thread);
-	      swtch(&(c->scheduler), p->t_context[p->active_thread]);
-	    } else if(p->active_thread == p->t_history) {
-	      p->active_thread = 0;
-	      if(p->t_chan == -1) {
-		if(p->proc_true != 1) {
-		  p->t_state[temp] = RUNNABLE;
-		}
-		p->proc_true = 1;
-		p->state = RUNNING;
-		cprintf("into proc\n");
-		swtch(&(c->scheduler), p->context);
-	      } else {
-		for(; p->t_state[p->active_thread] != RUNNABLE && p->active_thread < p->t_history; p->active_thread++);
-		if(p->t_state[p->active_thread] == RUNNABLE) {
-		  if(p->proc_true == 1) p->proc_true = 0;
-		  else p->t_state[temp] = RUNNABLE;
-		  p->state = RUNNING;
-		  p->t_state[p->active_thread] = RUNNING;
-		  //cprintf("into thread %d\n", p->active_thread);
-		  swtch(&(c->scheduler), p->t_context[p->active_thread]);
-		} else {
-		  panic("thread deadlock");
-		}
-	      }
-	    } else {
-	      panic("thread schedule");
-	    }
-	  }
-	  ///// ^^
-	}
-	
+	p->state = RUNNING; // Where process becomes RUNNING
+	swtch(&(c->scheduler), p->context);
+
 	switchkvm();
 
         p->stampout = stamp();
@@ -956,8 +911,8 @@ thread_join(thread_t thread, void **retval)
   // clean up the mess
   pushcli();
   curproc->t_state[thread] = UNUSED;
-  deallocuvm(curproc->pgdir, PGROUNDUP(curproc->old_sz) + (thread + 1) * 3 * PGSIZE, PGROUNDUP(curproc->old_sz) + thread * 3 * PGSIZE);
-  kfree(curproc->t_kstack[thread]);
+  //deallocuvm(curproc->pgdir, PGROUNDUP(curproc->old_sz) + (thread + 1) * 3 * PGSIZE, PGROUNDUP(curproc->old_sz) + thread * 3 * PGSIZE);
+  //kfree(curproc->t_kstack[thread]);
   popcli();
   //kfree(curproc->t_ustack[thread]);
 
